@@ -201,10 +201,10 @@ def show_products():
 @app.route('/get_products/', methods=["GET"])
 def get_Point_of_Sales():
     response = {}
-    with sqlite3.connect("Point_of_Sale.db") as conn:
+    with sqlite3.connect("Point_of_Sale.db") as conn:  # connecting to the database
         cursor = conn.cursor()
         cursor.row_factory = sqlite3.Row
-        cursor.execute("SELECT * FROM user_products")
+        cursor.execute("SELECT * FROM user_products")  # selecting from user_products table
         posts = cursor.fetchall()
         accumulator = []
 

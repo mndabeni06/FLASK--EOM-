@@ -1,15 +1,10 @@
 # Class 2 Masimthembe Ndabeni
 # Flask-End-of-Module Project
 # Soccer Boots Point-of-Sale-API
-import email
 import hmac
 import sqlite3
-import datetime
-
-from flask import Flask
 from flask_mail import Mail, Message
-
-from flask import Flask, request, jsonify, redirect, render_template
+from flask import Flask, request, jsonify, render_template
 from flask_jwt import JWT, jwt_required, current_identity
 from flask_cors import CORS
 
@@ -64,6 +59,9 @@ init_user_table()
 init_user_login_table()
 
 
+# Function to Fetch Everything from the user Table
+
+
 def fetch_users():
     with sqlite3.connect('Point_of_Sale.db') as conn:
         cursor = conn.cursor()
@@ -86,6 +84,7 @@ username_table = {u.username: u for u in users}
 userid_table = {u.id: u for u in users}
 
 
+# authentication of username and password to get access token
 def authenticate(username, password):
     user = username_table.get(username, None)
     if user and hmac.compare_digest(user.password.encode('utf-8'), password.encode('utf-8')):
@@ -113,6 +112,7 @@ Mail = Mail(app)
 jwt = JWT(app, authenticate, identity)
 
 
+# end-point route for authorization
 @app.route('/protected')
 @jwt_required()
 def protected():
@@ -124,6 +124,7 @@ def login():
     return render_template('/login.html')
 
 
+# end-point route for all registrations
 @app.route('/user-registration/', methods=["POST"])
 def user_registration():
     response = {}
@@ -146,6 +147,7 @@ def user_registration():
                            "password,address,phone_number,user_email) VALUES(?, ?, ?, ?, ?, ?, ?)",
                            (first_name, last_name, username, password, address, phone_number, user_email))
             conn.commit()
+
             response["message"] = "successfully registered"
             response["status_code"] = 201
 
@@ -153,12 +155,10 @@ def user_registration():
             msg = Message('Congratulations', sender='sithandathuzipho@gmail.com', recipients=['sithandathuzipho@gmail.com'])
             msg.body = "You have successfully registered"
             Mail.send(msg)
-
         return response
 
 
-# route to create products
-
+# end-point route to create products
 @app.route('/create-products/', methods=["POST"])
 @jwt_required()
 def create_products():
@@ -181,7 +181,6 @@ def create_products():
 
 
 # Creating products
-
 @app.route('/products/')
 def show_products():
     products = [{'id': 0, 'Product_name': 'Yocco speed point', 'Price': 300, 'Description': 'The best speed point'},
@@ -189,6 +188,7 @@ def show_products():
     return jsonify(products)
 
 
+# end-point products
 @app.route('/get_products/', methods=["GET"])
 def get_Point_of_Sales():
     response = {}
@@ -200,12 +200,11 @@ def get_Point_of_Sales():
         accumulator = []
 
         for i in posts:
-           accumulator.append({k: i[k] for k in i.keys()})
+            accumulator.append({k: i[k] for k in i.keys()})
 
     response['status_code'] = 200
     response['data'] = tuple(accumulator)
     return jsonify(response)
-
 
 
 # route to delete products
@@ -221,8 +220,8 @@ def delete_post(post_id):
         response['message'] = "products deleted successfully."
     return response
 
-# route to update products
 
+# route to update products
 @app.route('/update_products/<int:post_id>/', methods=["PUT"])
 @jwt_required()
 def update_product(post_id):

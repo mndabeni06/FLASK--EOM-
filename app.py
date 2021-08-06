@@ -6,6 +6,7 @@ import sqlite3
 from flask_mail import Mail, Message
 from flask import Flask, request, jsonify, render_template
 from flask_jwt import JWT, jwt_required, current_identity
+from smtplib import SMTPRecipientsRefused, SMTPAuthenticationError
 from flask_cors import CORS
 
 
@@ -101,7 +102,7 @@ CORS(app)
 app.debug = True
 app.config['SECRET_KEY'] = 'super-secret'
 
-app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] = 'sithandathuzipho@gmail.com'
 app.config['MAIL_PASSWORD'] = 'Crf6ZS@#'
@@ -129,32 +130,40 @@ def login():
 def user_registration():
     response = {}
 
-    if request.method == "POST":
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        username = request.form['username']
-        password = request.form['password']
-        address = request.form['address']
-        phone_number = request.form['phone_number']
-        user_email = request.form['user_email']
+    try:
+        if request.method == "POST":
+            first_name = request.form['first_name']
+            last_name = request.form['last_name']
+            address = request.form['address']
+            email = request.form['email']
+            username = request.form['username']
+            password = request.form['password']
 
-        with sqlite3.connect("Point_of_Sale.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO user("
-                           "first_name,"
-                           "last_name,"
-                           "username,"
-                           "password,address,phone_number,user_email) VALUES(?, ?, ?, ?, ?, ?, ?)",
-                           (first_name, last_name, username, password, address, phone_number, user_email))
-            conn.commit()
+            with sqlite3.connect('shoppers.db') as conn:
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO user("
+                               "first_name,"
+                               "last_name,"
+                               "address,"
+                               "email,"
+                               "username,"
+                               "password) VALUES(?, ?, ?, ?, ?, ?)",
+                               (first_name, last_name, address, email, username, password))
+                conn.commit()
 
-            response["message"] = "successfully registered"
-            response["status_code"] = 201
-
-
-            msg = Message('Congratulations', sender='sithandathuzipho@gmail.com', recipients=['sithandathuzipho@gmail.com'])
-            msg.body = "You have successfully registered"
-            Mail.send(msg)
+                response["message"] = "success"
+                response["status_code"] = 201
+                msg = Message("Thank you for Registering !!", sender="sithandathuzipho@gmail.com", recipients=[email])
+                msg.body = "You have successfully registered an account"
+                Mail.send(msg)
+            return response
+    except SMTPRecipientsRefused:
+        response["message"] = "Invalid email!, Try again"
+        response["status_code"] = 400
+        return response
+    except SMTPAuthenticationError:
+        response["message"] = "Invalid! Use valid username and password"
+        response["status_code"] = 400
         return response
 
 

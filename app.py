@@ -47,10 +47,11 @@ def init_user_login_table():
 # Creating product_table
 def init_product_table():
     with sqlite3.connect('Point_of_Sale.db') as conn:
-        conn.execute("CREATE TABLE IF NOT EXISTS user_products (id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        conn.execute("CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT,"
                      "product_name TEXT NOT NULL,"
                      "price INTEGER NOT NULL,"
-                     "description TEXT NOT NULL)")
+                     "description TEXT NOT NULL,"
+                     "images TEXT NOT NULL)")
     print("Product table created successfully.")
 
 
@@ -177,12 +178,14 @@ def create_products():
         product_name = request.form['product_name']
         price = request.form['price']
         description = request.form['description']
+        images = request.form['images']
+
         with sqlite3.connect('Point_of_Sale.db') as conn:
             cursor = conn.cursor()
-            cursor.execute("INSERT INTO user_products("
+            cursor.execute("INSERT INTO products("
                            "product_name,"
                            "price,"
-                           "description) VALUES(?, ?, ?)", (product_name, price, description))
+                           "description, images ) VALUES(?, ?, ?, ?)", (product_name, price, description, images))
             conn.commit()
             response["status_code"] = 201
             response['description'] = "products created successfully"
@@ -204,7 +207,7 @@ def get_Point_of_Sales():
     with sqlite3.connect("Point_of_Sale.db") as conn:  # connecting to the database
         cursor = conn.cursor()
         cursor.row_factory = sqlite3.Row
-        cursor.execute("SELECT * FROM user_products")  # selecting from user_products table
+        cursor.execute("SELECT * FROM products")  # selecting from user_products table
         posts = cursor.fetchall()
         accumulator = []
 
@@ -223,7 +226,7 @@ def delete_post(post_id):
     response = {}
     with sqlite3.connect("Point_of_Sale.db") as conn:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM user_products WHERE id=" + str(post_id))
+        cursor.execute("DELETE FROM products WHERE id=" + str(post_id))
         conn.commit()
         response['status_code'] = 200
         response['message'] = "products deleted successfully."
@@ -246,7 +249,7 @@ def update_product(post_id):
                 put_data["product_name"] = incoming_data.get("product_name")
                 with sqlite3.connect('Point_of_Sale.db') as conn:
                     cursor = conn.cursor()
-                    cursor.execute("UPDATE user_products SET product_name =? WHERE id=?", (put_data["product_name"], post_id))
+                    cursor.execute("UPDATE products SET product_name =? WHERE id=?", (put_data["product_name"], post_id))
                     conn.commit()
                     response['message'] = "product_name Updated successfully"
                     response['status_code'] = 200
@@ -257,7 +260,7 @@ def update_product(post_id):
 
                 with sqlite3.connect('Point_of_Sale.db') as conn:
                     cursor = conn.cursor()
-                    cursor.execute("UPDATE user_products SET price =? WHERE id=?", (put_data["price"], post_id))
+                    cursor.execute("UPDATE products SET price =? WHERE id=?", (put_data["price"], post_id))
                     conn.commit()
 
                     response["price"] = "price updated successfully"
@@ -269,10 +272,22 @@ def update_product(post_id):
 
                 with sqlite3.connect('Point_of_Sale.db') as conn:
                     cursor = conn.cursor()
-                    cursor.execute("UPDATE user_products SET description =? WHERE id=?", (put_data["description"], post_id))
+                    cursor.execute("UPDATE products SET description =? WHERE id=?", (put_data["description"], post_id))
                     conn.commit()
 
                     response["price"] = "description updated successfully"
+                    response["status_code"] = 200
+
+            # updating an image
+            if incoming_data.get("images") is not None:
+                put_data['images'] = incoming_data.get('images')
+
+                with sqlite3.connect('Point_of_Sale.db') as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE products SET images =? WHERE id=?", (put_data["images"], post_id))
+                    conn.commit()
+
+                    response["images"] = "image updated successfully"
                     response["status_code"] = 200
     return response
 

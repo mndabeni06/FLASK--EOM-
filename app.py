@@ -278,17 +278,7 @@ def update_product(post_id):
                     response["price"] = "description updated successfully"
                     response["status_code"] = 200
 
-            # updating an image
-            if incoming_data.get("images") is not None:
-                put_data['images'] = incoming_data.get('images')
 
-                with sqlite3.connect('Point_of_Sale.db') as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("UPDATE products SET images =? WHERE id=?", (put_data["images"], post_id))
-                    conn.commit()
-
-                    response["images"] = "image updated successfully"
-                    response["status_code"] = 200
     return response
 
 

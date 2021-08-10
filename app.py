@@ -136,25 +136,27 @@ def user_registration():
             first_name = request.form['first_name']
             last_name = request.form['last_name']
             address = request.form['address']
-            email = request.form['email']
+            user_email = request.form['user_email']
             username = request.form['username']
             password = request.form['password']
+            phone_number = request.form['phone_number']
 
-            with sqlite3.connect('shoppers.db') as conn:
+            with sqlite3.connect('Point_of_Sale.db') as conn:
                 cursor = conn.cursor()
                 cursor.execute("INSERT INTO user("
                                "first_name,"
                                "last_name,"
                                "address,"
-                               "email,"
+                               "user_email,"
                                "username,"
-                               "password) VALUES(?, ?, ?, ?, ?, ?)",
-                               (first_name, last_name, address, email, username, password))
+                               "phone_number,"
+                               "password) VALUES(?, ?, ?, ?, ?, ?, ?)",
+                               (first_name, last_name, address, user_email, username, password, phone_number))
                 conn.commit()
 
                 response["message"] = "success"
                 response["status_code"] = 201
-                msg = Message("Thank you for Registering !!", sender="sithandathuzipho@gmail.com", recipients=[email])
+                msg = Message("Thank you for Registering !!", sender="sithandathuzipho@gmail.com", recipients=[user_email])
                 msg.body = "You have successfully registered an account"
                 Mail.send(msg)
             return response

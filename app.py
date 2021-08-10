@@ -193,6 +193,21 @@ def create_products():
             response['description'] = "products created successfully"
         return response
 
+@app.route('/get-users/',methods=['GET'])
+def view_all_users():
+    response = {}
+    with sqlite3.connect("Point_of_Sale.db") as conn:
+        cursor = conn.cursor()
+        cursor.row_factory = sqlite3.Row
+        cursor.execute("SELECT * FROM user")
+        posts = cursor.fetchall()
+        accumulator = []
+        for i in posts:
+            accumulator.append({k: i[k] for k in i.keys()})
+            response['status_code'] = 200
+            response['data'] = tuple(accumulator)
+            return jsonify(response)
+
 
 # Creating products
 @app.route('/products/')

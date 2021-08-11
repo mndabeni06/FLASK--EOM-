@@ -131,8 +131,8 @@ def login():
 def user_registration():
     response = {}
 
-    try:
-        if request.method == "POST":
+    #try:
+    if request.method == "POST":
             first_name = request.form['first_name']
             last_name = request.form['last_name']
             address = request.form['address']
@@ -160,14 +160,14 @@ def user_registration():
                 msg.body = "You have successfully registered an account"
                 Mail.send(msg)
             return response
-    except SMTPRecipientsRefused:
-        response["message"] = "Invalid email!, Try again"
-        response["status_code"] = 400
-        return response
-    except SMTPAuthenticationError:
-        response["message"] = "Invalid! Use valid username and password"
-        response["status_code"] = 400
-        return response
+   # except SMTPRecipientsRefused:
+        #response["message"] = "Invalid email!, Try again"
+       # response["status_code"] = 400
+       # return response
+   # except SMTPAuthenticationError:
+      #  response["message"] = "Invalid! Use valid username and password"
+      #  response["status_code"] = 400
+      #  return response
 
 
 # end-point route to create products
@@ -238,7 +238,7 @@ def get_Point_of_Sales():
 
 # route to delete products
 @app.route("/delete-products/<int:post_id>")
-@jwt_required()
+#@jwt_required()
 def delete_post(post_id):
     response = {}
     with sqlite3.connect("Point_of_Sale.db") as conn:
@@ -293,6 +293,18 @@ def update_product(post_id):
                     conn.commit()
 
                     response["price"] = "description updated successfully"
+                    response["status_code"] = 200
+
+             # updating images
+            if incoming_data.get("images") is not None:
+                put_data['images'] = incoming_data.get('images')
+
+                with sqlite3.connect('Point_of_Sale.db') as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE products SET images =? WHERE id=?", (put_data["images"], post_id))
+                    conn.commit()
+
+                    response["images"] = "images updated successfully"
                     response["status_code"] = 200
 
 

@@ -115,7 +115,7 @@ jwt = JWT(app, authenticate, identity)
 
 
 # end-point route for authorization
-@app.route('/protected')
+#@app.route('/protected')
 @jwt_required()
 def protected():
     return '%s' % current_identity
@@ -172,7 +172,7 @@ def user_registration():
 
 # end-point route to create products
 @app.route('/create-products/', methods=["POST"])
-@jwt_required()
+#@jwt_required()
 def create_products():
     response = {}
 
@@ -238,7 +238,7 @@ def get_Point_of_Sales():
 
 # route to delete products
 @app.route("/delete-products/<int:post_id>")
-#@jwt_required()
+@jwt_required()
 def delete_post(post_id):
     response = {}
     with sqlite3.connect("Point_of_Sale.db") as conn:

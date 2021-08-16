@@ -103,20 +103,20 @@ CORS(app)
 app.debug = True
 app.config['SECRET_KEY'] = 'super-secret'
 
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'sithandathuzipho@gmail.com'
-app.config['MAIL_PASSWORD'] = 'Crf6ZS@#'
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-Mail = Mail(app)
+#app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+#app.config['MAIL_PORT'] = 465
+#app.config['MAIL_USERNAME'] = 'sithandathuzipho@gmail.com'
+#app.config['MAIL_PASSWORD'] = 'Crf6ZS@#'
+#app.config['MAIL_USE_TLS'] = False
+#app.config['MAIL_USE_SSL'] = True
+#Mail = Mail(app)
 
 jwt = JWT(app, authenticate, identity)
 
 
 # end-point route for authorization
-#@app.route('/protected')
-@jwt_required()
+@app.route('/protected')
+#@jwt_required()
 def protected():
     return '%s' % current_identity
 
@@ -133,13 +133,13 @@ def user_registration():
 
     #try:
     if request.method == "POST":
-            first_name = request.form['first_name']
-            last_name = request.form['last_name']
-            address = request.form['address']
-            user_email = request.form['user_email']
-            username = request.form['username']
-            password = request.form['password']
-            phone_number = request.form['phone_number']
+            first_name = request.json['first_name']
+            last_name = request.json['last_name']
+            username = request.json['username']
+            password = request.json['password']
+            address = request.json['address']
+            phone_number = request.json['phone_number']
+            user_email = request.json['user_email']
 
             with sqlite3.connect('Point_of_Sale.db') as conn:
                 cursor = conn.cursor()
@@ -194,7 +194,7 @@ def create_products():
         return response
 
 @app.route('/get-users/',methods=['GET'])
-def view_all_users():
+def show_users():
     response = {}
     with sqlite3.connect("Point_of_Sale.db") as conn:
         cursor = conn.cursor()
@@ -238,7 +238,7 @@ def get_Point_of_Sales():
 
 # route to delete products
 @app.route("/delete-products/<int:post_id>")
-#@jwt_required()
+@jwt_required()
 def delete_post(post_id):
     response = {}
     with sqlite3.connect("Point_of_Sale.db") as conn:
